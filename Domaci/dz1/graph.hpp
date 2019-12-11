@@ -9,6 +9,21 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+// template<typename T>
+class Queue
+{
+ public:
+    explicit Queue(int max_elem);
+    void push(int elem);
+    int pop();
+    bool empty();
+
+ private:
+    int top;
+    int bot;
+    int* data;
+};
+
 typedef struct graph
 {
     bool** data;
@@ -35,3 +50,6 @@ void printGraph(Graph* graph);
 
 // free graph
 void freeGraph(Graph* graph);
+
+// BFS
+void BFS(Graph* graph, int node_start, int node_end);

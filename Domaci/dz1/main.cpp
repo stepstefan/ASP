@@ -3,7 +3,7 @@
 //
 // Created by Stefan Stepanovic on 12/10/2019
 
-#include "./graph.h"
+#include "./graph.hpp"
 
 void printhelp()
 {
@@ -68,6 +68,7 @@ int main()
         printf("\nEnter yout choice: ");
         scanf("%d", &sw);
     }
+    BFS(&graph, 0, 10);
     freeGraph(&graph);
     return 0;
 }

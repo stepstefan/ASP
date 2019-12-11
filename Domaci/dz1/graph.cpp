@@ -3,7 +3,7 @@
 //
 // Created by Stefan Stepanovic on 12/10/2019
 
-#include "./graph.h"
+#include "./graph.hpp"
 
 void freeGraph(Graph* graph)
 {
@@ -181,5 +181,68 @@ void printGraph(Graph* graph)
             printf("%d ", graph->data[i][j]);
         }
         printf("\n");
+    }
+}
+
+// template<typename T>
+Queue::Queue(int max_elem)
+{
+    data = new int[max_elem];
+    top = 0;
+    bot = 0;
+}
+
+// template<typename T>
+void Queue::push(int elem)
+{
+    data[top++] = elem;
+}
+
+// template<typename T>
+int Queue::pop()
+{
+    return data[bot++];
+}
+
+// template<typename T>
+bool Queue::empty()
+{
+    return (bot == top);
+}
+
+void BFS(Graph* graph, int node_start, int node_end)
+{
+    // queue
+    Queue queue(graph->n+1);
+
+    int* parents = new int[graph->n];
+
+    // look-up searched
+    bool* searched = reinterpret_cast<bool*>(calloc(graph->n, sizeof(bool)));
+    for (int i = 0; i < graph->n; i++)
+    {
+        searched[i] = false;
+    }
+
+    // Add start to search
+    queue.push(node_start);
+    searched[node_start] = true;
+    while (!queue.empty())
+    {
+        int node = queue.pop();
+        if (node == node_end)
+        {
+            break;
+        }
+        printf("%d ", node);
+        for (int j = 0; j < graph->n; j++)
+        {
+            if ((graph->data[node][j]) && !(searched[j]))
+            {
+                searched[j] = true;
+                parents[j] = node;
+                queue.push(j);
+            }
+        }
     }
 }
