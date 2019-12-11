@@ -1,1 +1,1 @@
-#Algorithms and Data structures course, ETF
+# Algorithms and Data structures course, ETF
