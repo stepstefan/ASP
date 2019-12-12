@@ -31,7 +31,7 @@ void addPassage(Maze* maze, int field1_x, int filed1_y,
 void printMazeStd(Maze* maze);
 
 // Print maze to file
-void printMazeFile(Maze* maze);
+void printMazeFile(Maze* maze, FILE* file);
 
 void printMaze(Maze* maze, std::ofstream os);
 

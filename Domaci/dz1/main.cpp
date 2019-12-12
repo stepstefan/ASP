@@ -26,57 +26,57 @@ int main()
 
     int sw;
 
-    // printhelp();
+    printhelp();
 
-    // scanf("%d", &sw);
-    // while (sw)
-    // {
-    //     int n, node, node1, node2;
-    //     switch (sw)
-    //     {
-    //         case (1):
-    //             printf("Insert number of nodes: ");
-    //             scanf("%d", &n);
-    //             initializeGraph(&graph, n);
-    //             break;
-    //         case (2):
-    //             addNode(&graph);
-    //             break;
-    //         case (3):
-    //             printf("Select node: ");
-    //             scanf("%d", &node);
-    //             removeNode(&graph, node);
-    //             break;
-    //         case (4):
-    //             printf("Select nodes: ");
-    //             scanf("%d %d", &node1, &node2);
-    //             addVertex(&graph, node1, node2);
-    //             break;
-    //         case (5):
-    //             printf("Select nodes: ");
-    //             scanf("%d %d", &node1, &node2);
-    //             removeVertex(&graph, node1, node2);
-    //             break;
-    //         case (6):
-    //             printGraph(&graph);
-    //             break;
-    //         case (7):
-    //             freeGraph(&graph);
-    //         default:
-    //             break;
-    //     }
-    //     printf("\nEnter yout choice: ");
-    //     scanf("%d", &sw);
-    // }
+    scanf("%d", &sw);
+    while (sw)
+    {
+        int n, node, node1, node2;
+        switch (sw)
+        {
+            case (1):
+                printf("Insert number of nodes: ");
+                scanf("%d", &n);
+                initializeGraph(&graph, n);
+                break;
+            case (2):
+                addNode(&graph);
+                break;
+            case (3):
+                printf("Select node: ");
+                scanf("%d", &node);
+                removeNode(&graph, node);
+                break;
+            case (4):
+                printf("Select nodes: ");
+                scanf("%d %d", &node1, &node2);
+                addVertex(&graph, node1, node2);
+                break;
+            case (5):
+                printf("Select nodes: ");
+                scanf("%d %d", &node1, &node2);
+                removeVertex(&graph, node1, node2);
+                break;
+            case (6):
+                printGraph(&graph);
+                break;
+            case (7):
+                freeGraph(&graph);
+            default:
+                break;
+        }
+        printf("\nEnter yout choice: ");
+        scanf("%d", &sw);
+    }
 
-    initializeGraph(&graph, 5);
-    addVertex(&graph, 0, 2);
-    addVertex(&graph, 2, 1);
-    addVertex(&graph, 1, 3);
-    addVertex(&graph, 3, 4);
-    addVertex(&graph, 2, 3);
+    // initializeGraph(&graph, 5);
+    // addVertex(&graph, 0, 2);
+    // addVertex(&graph, 2, 1);
+    // addVertex(&graph, 1, 3);
+    // addVertex(&graph, 3, 4);
+    // addVertex(&graph, 2, 3);
 
-    BFS(&graph, 2, 3);
+    // BFS(&graph, 2, 3);
     freeGraph(&graph);
     return 0;
 }

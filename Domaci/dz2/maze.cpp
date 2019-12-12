@@ -191,7 +191,7 @@ void printMazeFile(Maze* maze, FILE* file)
         {
             visited[i] = false;
         }
-        printf("|");
+        fprintf(file, "|");
         for (int j = 0; j < maze->width*2; j++)
         {
             fprintf(file, "-");
@@ -229,7 +229,7 @@ void printMazeFile(Maze* maze, FILE* file)
                     }
                 }
             }
-            printf("|\n|");
+            fprintf(file, "|\n|");
             if (i < maze->height-1)
             {
                 for (int j = 0; j < maze->width; j++)
