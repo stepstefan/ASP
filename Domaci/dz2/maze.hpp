@@ -6,8 +6,10 @@
 #pragma once
 
 #include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
 
-#include "../dz1/graph.h"
+#include "../dz1/graph.hpp"
 
 typedef struct Maze
 {
@@ -34,3 +36,5 @@ void printMazeFile(Maze* maze);
 void printMaze(Maze* maze, std::ofstream os);
 
 void freeMaze(Maze* maze, FILE* file);
+
+void BFSmaze(Maze* maze, int node_start, int node_end);

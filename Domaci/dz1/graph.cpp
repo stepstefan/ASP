@@ -227,14 +227,15 @@ void BFS(Graph* graph, int node_start, int node_end)
     // Add start to search
     queue.push(node_start);
     searched[node_start] = true;
+    bool found = false;
     while (!queue.empty())
     {
         int node = queue.pop();
         if (node == node_end)
         {
+            found = true;
             break;
         }
-        printf("%d ", node);
         for (int j = 0; j < graph->n; j++)
         {
             if ((graph->data[node][j]) && !(searched[j]))
@@ -244,5 +245,29 @@ void BFS(Graph* graph, int node_start, int node_end)
                 queue.push(j);
             }
         }
+    }
+
+    int* path = new int[graph->n];
+
+    if (found)
+    {
+        int current = node_end;
+        int i = 0;
+        while (current != node_start)
+        {
+            current = parents[current];
+            path[i++] = current;
+        }
+        i--;
+        printf("%d\n", node_start);
+        for (; i >= 0; i--)
+        {
+            printf("%d -> ", path[i]);
+        }
+        printf("%d\n", node_end);
+    }
+    else
+    {
+        printf("Path doesn't exist!\n");
     }
 }

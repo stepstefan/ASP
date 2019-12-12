@@ -3,11 +3,17 @@
 //
 // Created by Stefan Stepanovic on 12/11/2019
 
-#include "./maze.h"
+#include "./maze.hpp"
 
 int calcNodeFromCoordinates(Maze* maze, int x, int y)
 {
     return maze->width * y + x;
+}
+
+void calcCoordinatesFromNode(Maze* maze, int node, int& x, int& y)
+{
+    x = static_cast<int>(node % maze->width);
+    y = static_cast<int>(node / maze->width);
 }
 
 void initializeMaze(Maze* maze, int height, int width,
@@ -73,7 +79,7 @@ void addPassage(Maze* maze, int field1_x, int field1_y,
     else
     {
         if ((field1_x == field2_x + 1 && field1_y == field2_y) ||
-            (field1_x == field2_x - 1 && field2_y == field2_y) ||
+            (field1_x == field2_x - 1 && field1_y == field2_y) ||
             (field1_x == field2_x && field1_y == field2_y + 1) ||
             (field1_x == field2_x && field1_y == field2_y - 1))
         {
@@ -151,7 +157,7 @@ void printMazeStd(Maze* maze)
                     int down_node = calcNodeFromCoordinates(maze, j, i+1);
                     if (maze->graph->data[node][down_node])
                     {
-                        printf("%d", maze->graph->data[node][down_node]);
+                        printf(" ", maze->graph->data[node][down_node]);
                     }
                     else
                     {
@@ -177,7 +183,7 @@ void printMazeStd(Maze* maze)
     }
 }
 
-void printMazeFile(Maze* maze, FIlE* file)
+void printMazeFile(Maze* maze, FILE* file)
 {
     int graph_size = maze->height * maze->width;
         bool* visited = reinterpret_cast<bool*>(calloc(graph_size, sizeof(bool)));
@@ -251,4 +257,68 @@ void printMazeFile(Maze* maze, FIlE* file)
             fprintf(file, "-");
         }
         fprintf(file, "\n");
-} 
+}
+
+void BFSmaze(Maze* maze, int node_start, int node_end)
+{
+    // queue
+    Queue queue(maze->graph->n+1);
+
+    int* parents = new int[maze->graph->n];
+
+    // look-up searched
+    bool* searched = reinterpret_cast<bool*>(calloc(maze->graph->n, sizeof(bool)));
+    for (int i = 0; i < maze->graph->n; i++)
+    {
+        searched[i] = false;
+    }
+
+    // Add start to search
+    queue.push(node_start);
+    searched[node_start] = true;
+    bool found = false;
+    while (!queue.empty())
+    {
+        int node = queue.pop();
+        if (node == node_end)
+        {
+            found = true;
+            break;
+        }
+        for (int j = 0; j < maze->graph->n; j++)
+        {
+            if ((maze->graph->data[node][j]) && !(searched[j]))
+            {
+                searched[j] = true;
+                parents[j] = node;
+                queue.push(j);
+            }
+        }
+    }
+
+    int* path = new int[maze->graph->n];
+
+    if (found)
+    {
+        int current = node_end;
+        int x, y;
+        int i = 0;
+        while (current != node_start)
+        {
+            current = parents[current];
+            path[i++] = current;
+        }
+        i--;
+        for (; i >= 0; i--)
+        {
+            calcCoordinatesFromNode(maze, path[i], x, y);
+            printf("(%d, %d) -> ", x, y);
+        }
+        calcCoordinatesFromNode(maze, node_end, x, y);
+        printf("(%d, %d)\n", x, y);
+    }
+    else
+    {
+        printf("Path doesn't exist!\n");
+    }
+}
