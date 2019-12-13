@@ -78,7 +78,7 @@ void addNode(Graph* graph)
     }
 }
 
-void addVertex(Graph* graph, int node1, int node2)
+void addEdge(Graph* graph, int node1, int node2)
 {
     if (graph->n > 0)
     {
@@ -87,11 +87,11 @@ void addVertex(Graph* graph, int node1, int node2)
         {
             graph->data[node1][node2] = true;
             graph->data[node2][node1] = true;
-            printf("Added vertex between %d and %d\n", node1, node2);
+            printf("Added edge between %d and %d\n", node1, node2);
         }
         else
         {
-            printf("Provided nodes are aout of bouds %d %d\n", node1, node2);
+            printf("Provided nodes are out of bouds %d %d\n", node1, node2);
         }
     }
     else
@@ -100,7 +100,7 @@ void addVertex(Graph* graph, int node1, int node2)
     }
 }
 
-void removeVertex(Graph* graph, int node1, int node2)
+void removeEdge(Graph* graph, int node1, int node2)
 {
     if (graph->n > 0)
     {

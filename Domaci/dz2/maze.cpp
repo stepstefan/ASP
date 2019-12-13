@@ -34,35 +34,9 @@ void initializeMaze(Maze* maze, int height, int width,
         maze->width = width;
         maze->graph = reinterpret_cast<Graph*>(calloc(1, sizeof(Graph)));
         initializeGraph(maze->graph, height*width);
-        // maze->data = reinterpret_cast<int**>(calloc(height, sizeof(int*)));
-        // for (int i = 0; i < height; i++)
-        // {
-        //     maze->data[i] = reinterpret_cast<int*>(calloc(width, sizeof(int)));
-        // }
-
-        // Compiler check
-        // for (int i = 0; i < height; i++)
-        // {
-        //     for (int j = 0; j < width; j++)
-        //     {
-        //         maze->data[i][j] = 0;  // code for wall
-        //     }
-        // }
 
         maze->entrance = calcNodeFromCoordinates(maze, entrance_x, entrance_y);
         maze->exit = calcNodeFromCoordinates(maze, exit_x, exit_y);
-
-        // set entrance and exit as pathways
-        // maze->data[entrance_y][entrance_x] = 2;  // code for entrance
-        // maze->data[exit_y][exit_y] = 3;  // code for exit
-
-        // if ((entrance_x == exit_x + 1 && entrance_y == exit_y) ||
-        //     (entrance_x == exit_x - 1 && entrance_y == exit_y) ||
-        //     (entrance_x == exit_x && entrance_y == exit_y + 1) ||
-        //     (entrance_x == exit_x && entrance_y == exit_y - 1))
-        // {
-        //     addVertex(maze->graph, maze->entrance, maze->exit);
-        // }
     }
 }
 
@@ -86,7 +60,7 @@ void addPassage(Maze* maze, int field1_x, int field1_y,
             int node1 = calcNodeFromCoordinates(maze, field1_x, field1_y);
             int node2 = calcNodeFromCoordinates(maze, field2_x, field2_y);
 
-            addVertex(maze->graph, node1, node2);
+            addEdge(maze->graph, node1, node2);
         }
         else
         {

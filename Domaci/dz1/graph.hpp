@@ -33,11 +33,11 @@ typedef struct graph
 // initializes graph with n nodes
 void initializeGraph(Graph* graph, int n);
 
-// adds vertex to graph between node1 and node2
-void addVertex(Graph* graph, int node1, int node2);
+// adds edge to graph between node1 and node2
+void addEdge(Graph* graph, int node1, int node2);
 
-// remove vertex from graph between node1 and node2
-void removeVertex(Graph* graph, int node1, int node2);
+// remove edge from graph between node1 and node2
+void removeEdge(Graph* graph, int node1, int node2);
 
 // add node to graph
 void addNode(Graph* graph);

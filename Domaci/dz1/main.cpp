@@ -11,8 +11,8 @@ void printhelp()
     printf("1 : initialize graph\n");
     printf("2 : add node\n");
     printf("3 : remove node\n");
-    printf("4 : add vertex\n");
-    printf("5 : remove vertex\n");
+    printf("4 : add edge\n");
+    printf("5 : remove edge\n");
     printf("6 : print graph\n");
     printf("7 : free graph\n");
     printf("100 : print help\n");
@@ -50,12 +50,12 @@ int main()
             case (4):
                 printf("Select nodes: ");
                 scanf("%d %d", &node1, &node2);
-                addVertex(&graph, node1, node2);
+                addEdge(&graph, node1, node2);
                 break;
             case (5):
                 printf("Select nodes: ");
                 scanf("%d %d", &node1, &node2);
-                removeVertex(&graph, node1, node2);
+                removeEdge(&graph, node1, node2);
                 break;
             case (6):
                 printGraph(&graph);
@@ -70,11 +70,11 @@ int main()
     }
 
     // initializeGraph(&graph, 5);
-    // addVertex(&graph, 0, 2);
-    // addVertex(&graph, 2, 1);
-    // addVertex(&graph, 1, 3);
-    // addVertex(&graph, 3, 4);
-    // addVertex(&graph, 2, 3);
+    // addEdge(&graph, 0, 2);
+    // addEdge(&graph, 2, 1);
+    // addEdge(&graph, 1, 3);
+    // addEdge(&graph, 3, 4);
+    // addEdge(&graph, 2, 3);
 
     // BFS(&graph, 2, 3);
     freeGraph(&graph);
