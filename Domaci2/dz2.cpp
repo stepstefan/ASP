@@ -13,6 +13,7 @@
 #include <queue>
 #include <set>
 #include <stack>
+#include <algorithm>
 
 const size_t ERROR_ID = std::numeric_limits<size_t>::infinity();
 
@@ -23,7 +24,10 @@ const size_t ERROR_ID = std::numeric_limits<size_t>::infinity();
 typedef struct graph
 {
     // keep track of connected nodes
-    std::vector<std::vector<bool>> connectivity_;
+    // 0 not connected
+    // 1 connected
+    // 2 can be connected
+    std::vector<std::vector<int>> connectivity_;
 
     // keep track of weights of edges
     // data on specific edge is valid only if connectivity of those nodes is true
@@ -72,7 +76,7 @@ void freeGraph(Graph* graph)
 void initializeGraph(Graph* graph, size_t n)
 {
     freeGraph(graph);
-    graph->connectivity_ = std::vector<std::vector<bool>>(n, std::vector<bool>(n, false));
+    graph->connectivity_ = std::vector<std::vector<int>>(n, std::vector<int>(n, 0));
     graph->data_ = std::vector<std::vector<double>>(n, std::vector<double>(n, std::numeric_limits<double>::infinity()));
     for (size_t i = 0; i < n; i++)
     {
@@ -94,12 +98,12 @@ size_t addNode(Graph* graph)
         size_t new_id = ++graph->max_index;  // find current max id and increment it
 
         graph->data_.push_back(std::vector<double>(graph->n, std::numeric_limits<double>::infinity()));
-        graph->connectivity_.push_back(std::vector<bool>(graph->n, false));
+        graph->connectivity_.push_back(std::vector<int>(graph->n, 0));
 
         for (size_t i = 0; i < graph->n + 1; i++)
         {
             graph->data_[i].push_back(std::numeric_limits<double>::infinity());
-            graph->connectivity_[i].push_back(false);
+            graph->connectivity_[i].push_back(0);
         }
 
         graph->node_index_map_.insert(std::make_pair(new_id, graph->n));  // assign mapping from id to index
@@ -120,8 +124,9 @@ size_t addNode(Graph* graph)
  * @param node1 
  * @param node2 
  * @param weight 
+ * @param type : 0, 1, 2 for connection type
  */
-void addEdge(Graph* graph, size_t node1, size_t node2, double weight = 0)
+void addEdge(Graph* graph, size_t node1, size_t node2, double weight = 0, int type = 1)
 {
     if (graph->n > 0)
     {
@@ -131,8 +136,8 @@ void addEdge(Graph* graph, size_t node1, size_t node2, double weight = 0)
             size_t idx1 = graph->node_index_map_[node1];
             size_t idx2 = graph->node_index_map_[node2];
 
-            graph->connectivity_[idx1][idx2] = true;
-            graph->connectivity_[idx2][idx1] = true;
+            graph->connectivity_[idx1][idx2] = type;
+            graph->connectivity_[idx2][idx1] = type;
             graph->data_[idx1][idx2] = weight;
             graph->data_[idx2][idx1] = weight;
             printf("Added edge between %ld and %ld\n", node1, node2);
@@ -165,8 +170,8 @@ void removeEdge(Graph* graph, size_t node1, size_t node2)
             size_t idx1 = graph->node_index_map_[node1];
             size_t idx2 = graph->node_index_map_[node2];
 
-            graph->connectivity_[idx1][idx2] = false;
-            graph->connectivity_[idx2][idx1] = false;
+            graph->connectivity_[idx1][idx2] = 0;
+            graph->connectivity_[idx2][idx1] = 0;
             graph->data_[idx1][idx2] = std::numeric_limits<double>::infinity();
             graph->data_[idx2][idx1] = std::numeric_limits<double>::infinity();
         }
@@ -297,7 +302,7 @@ double Prims(Graph* graph)
 
             for (const auto& element : graph->node_index_map_)
             {
-                if (graph->connectivity_[index][element.second])
+                if (graph->connectivity_[index][element.second] == 1)
                 {
                     if (!added[element.first])
                     {
@@ -309,6 +314,45 @@ double Prims(Graph* graph)
     }
     return total_cost;
 }
+
+struct LocalSort
+{
+    explicit LocalSort(const Graph* graph):
+    graph_(graph)
+    {}
+
+    bool operator()(
+        const std::vector<size_t>& elem1,
+        const std::vector<size_t>& elem2)
+    {
+        int cnt1 = 0;
+        int cnt2 = 0;
+        for (int i = 0; i < elem1.size() - 1; i++)
+        {
+            size_t node1 = elem1.at(i);
+            size_t node2 = elem1.at(i+1);
+
+            if (graph_->connectivity_.at(node1).at(node2) == 2)
+            {
+                cnt1++;
+            }
+        }
+        for (int i = 0; i < elem2.size() - 1; i++)
+        {
+            size_t node1 = elem2.at(i);
+            size_t node2 = elem2.at(i+1);
+
+            if (graph_->connectivity_.at(node1).at(node2) == 2)
+            {
+                cnt1++;
+            }
+        }
+
+        return (cnt1 > cnt2);
+    }
+
+    const Graph* graph_;
+};
 
 void MinPaths(Graph* graph, size_t start_node)
 {
@@ -350,33 +394,45 @@ void MinPaths(Graph* graph, size_t start_node)
 
         size_t node = edge.second;
         std::cout << "Processing: " << node << std::endl;
-        double weight = edge.first;
-        size_t index = graph->node_index_map_[node];
-        finished.at(node) = true;
-        for (const auto& element : graph->node_index_map_)
+
+        // pqueue can contain copys of elements as it is filled incrementally
+        // check if this node is already optimized better and skip this iteration
+        // avoid multiple copies of same path
+        if (edge.first > distances.at(node))
         {
-            if (graph->connectivity_[index][element.second] && !finished.at(element.first))
+            std::cout << "\t This node is already optimized better" << std::endl;
+        }
+        else
+        {
+            double weight = edge.first;
+            size_t index = graph->node_index_map_[node];
+            finished.at(node) = true;
+
+            for (const auto& element : graph->node_index_map_)
             {
-                if (distances[element.first] > distances[node] + graph->data_[index][element.second])
+                if (graph->connectivity_[index][element.second] > 0 && !finished.at(element.first))
                 {
-                    distances[element.first] = distances[node] + graph->data_[index][element.second];
-                    track[element.first].clear();
-                    track[element.first] = track[node];
-                    for (auto& track_element : track[element.first])
+                    if (distances[element.first] > distances[node] + graph->data_[index][element.second])
                     {
-                        track_element.push_back(node);
-                    }
-                    pqueue.push(std::make_pair(distances[element.first], element.first));
-                }
-                else
-                {
-                    if (distances[element.first] == distances[node] + graph->data_[index][element.second])
-                    {
-                        for (const auto& track_element : track[node])
+                        distances[element.first] = distances[node] + graph->data_[index][element.second];
+                        track[element.first].clear();
+                        track[element.first] = track[node];
+                        for (auto& track_element : track[element.first])
                         {
-                            std::vector<size_t> copy_track = track_element;
-                            copy_track.push_back(node);
-                            track.at(element.first).push_back(copy_track);
+                            track_element.push_back(node);
+                        }
+                        pqueue.push(std::make_pair(distances[element.first], element.first));
+                    }
+                    else
+                    {
+                        if (distances[element.first] == distances[node] + graph->data_[index][element.second])
+                        {
+                            for (const auto& track_element : track[node])
+                            {
+                                std::vector<size_t> copy_track = track_element;
+                                copy_track.push_back(node);
+                                track.at(element.first).push_back(copy_track);
+                            }
                         }
                     }
                 }
@@ -384,22 +440,27 @@ void MinPaths(Graph* graph, size_t start_node)
         }
     }
 
-    for (const auto element : track)
-    {
-        std::cout << element.first << " track size: " << element.second.size();
-        std::cout << std::endl;
-    }
-
     for (const auto& element : distances)
     {
         std::cout << "Distance " << start_node << " - " << element.first << " = " << element.second << " with paths: \n" << std::flush;
+
+        if (track.at(element.first).size() == 2)
+        {
+            std::swap(track.at(element.first)[0], track.at(element.first)[1]);
+        }
+
+        std::sort(
+            track.at(element.first).begin(),
+            track.at(element.first).end(),
+            LocalSort(graph));
+
         for (const auto& track_element : track.at(element.first))
         {
             for (const auto& prev_node : track_element)
             {
                 std::cout << prev_node << " ";
             }
-            std::cout << std::endl;
+            std::cout << element.first << std::endl;
         }
         std::cout << std::endl;
     }
@@ -419,12 +480,13 @@ int main()
 
     size_t node1, node2;
     double price = 0;
+    int type = 1;
     while (price >= 0)
     {
-        scanf("%ld %ld %lf", &node1, &node2, &price);
+        scanf("%ld %ld %lf %d", &node1, &node2, &price, &type);
         if (price >= 0)
         {
-            addEdge(&graph, node1, node2, price);
+            addEdge(&graph, node1, node2, price, type);
         }
     }
 
